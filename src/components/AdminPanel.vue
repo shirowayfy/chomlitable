@@ -13,11 +13,22 @@
         <div class="admin__items">
           <div class="admin__items-item" v-for="(person, i) of outarr" :key="i">
             <span>{{ person.name }} (#{{ person.student_id }})</span>
-            <router-link
-              class="admin__items-item__btn"
-              :to="{ name: 'edit', params: { student_id: person.student_id } }"
-              >Редактировать</router-link
-            >
+            <div>
+              <span
+                @click="removeItem(person.student_id, i)"
+                class="material-icons del"
+              >
+                remove_circle
+              </span>
+              <router-link
+                class="admin__items-item__btn"
+                :to="{
+                  name: 'edit',
+                  params: { student_id: person.student_id }
+                }"
+                >Редактировать
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -54,14 +65,33 @@ export default {
           };
           this.people.push(data);
           this.outarr = JSON.parse(JSON.stringify(this.people));
+          this.outarr.sort(function(a, b) {
+            return a.student_id - b.student_id;
+          });
         });
       });
   },
   methods: {
     filterArray() {
-      this.outarr = this.people.filter(el =>
-        el.name.toLowerCase().includes(this.text.toLowerCase())
-      );
+      this.outarr = this.people
+        .filter(el => el.name.toLowerCase().includes(this.text.toLowerCase()))
+        .sort(function(a, b) {
+          return a.student_id - b.student_id;
+        });
+    },
+    removeItem(id, i) {
+      db.collection("list")
+        .where("id", "==", id)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            const ask = confirm("Вы уверены в своём решении?");
+            if (ask) {
+              doc.ref.delete();
+              this.outarr.splice(i, 1);
+            }
+          });
+        });
     }
   }
 };
@@ -96,6 +126,24 @@ export default {
       display: flex;
       justify-content: space-between;
       transition: all 0.2s;
+
+      & div {
+        position: relative;
+
+        & .del {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          transition: color 0.3s;
+          font-size: 30px;
+          cursor: pointer;
+
+          &:hover {
+            color: red;
+          }
+        }
+      }
 
       &__btn {
         width: 200px;
