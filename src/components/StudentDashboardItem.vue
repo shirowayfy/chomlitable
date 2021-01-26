@@ -37,7 +37,8 @@ export default {
   transition: all 0.2s;
 
   &__btn {
-    width: 200px;
+    max-width: 200px;
+    width: 100%;
     border: none;
     padding: 10px 0;
     border-radius: 20px;
@@ -48,6 +49,17 @@ export default {
     &.active {
       background: lightgreen;
       color: #fff;
+    }
+  }
+}
+@media (max-width: 500px) {
+  .student__items-item {
+    text-align: center;
+    flex-direction: column;
+
+    & button {
+      margin: 0 auto;
+      margin-top: 10px !important;
     }
   }
 }
